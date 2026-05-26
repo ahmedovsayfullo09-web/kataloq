@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html class="light" lang="uz">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>LUXE CATALOG - OFFICE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+// SIZNING TELEGRAM USERNAME (Telegram xabar shu yerga keladi)
+const OWNER_USERNAME = "hikvision_23"; 
+
+// Standart Logotip rasmi
+const DEFAULT_LOGO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Crect width='400' height='400' rx='80' fill='%232D3436'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='Epilogue, sans-serif' font-weight='800' font-size='130' fill='white' letter-spacing='-5'%3ELUXE%3C/text%3E%3C/svg%3E";
+
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            colors: {
+                "primary": "#2D3436", "on-primary": "#FFFFFF", "primary-container": "#E0E3E5",
+                "surface": "#F8F9FF", "on-surface": "#121C2A", "surface-container": "#E6EEFF",
+                "outline-variant": "#C5C6CA", "error": "#BA1A1A", "inverse-surface": "#27313F", "inverse-on-surface": "#EAF1FF"
+            },
+            fontFamily: { "headline": ["Epilogue"], "body": ["Inter"] },
+            spacing: { "gutter": "24px" }
+        }
+    }
+}
+</script>
+<style>
+    body { background-color: #F8F9FF; -webkit-tap-highlight-color: transparent; transition: background 0.3s, color 0.3s; color: #121C2A; }
+    .dark body, body.dark-mode { background-color: #121212; color: #E0E0E0; }
+    .dark .bg-white { background-color: #1E1E1E !important; }
+    .dark .bg-gray-100 { background-color: #2C2C2C !important; }
+    .dark .border-gray-100, .dark .border-gray-200 { border-color: #333 !important; }
+    .dark .text-gray-500, .dark .text-gray-400 { color: #999 !important; }
+    .dark .text-primary { color: #8DB4F2 !important; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; user-select: none; }
+    .hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    #splash-screen { transition: opacity 0.8s ease, visibility 0.8s ease; }
+    #splash-screen.hidden-splash { opacity: 0; visibility: hidden; pointer-events: none; }
+    @keyframes floatIn { 0% { transform: translateY(30px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+    .splash-anim-1 { animation: floatIn 0.8s ease-out 0.2s both; }
+    .splash-anim-2 { animation: floatIn 0.8s ease-out 0.5s both; }
+    .splash-anim-3 { animation: floatIn 0.8s ease-out 0.8s both; }
+    
+    .page { display: none; } .page.active { display: block; animation: fadeIn 0.3s ease; }
+    .modal-overlay { transition: opacity 0.3s; pointer-events: none; opacity: 0; }
+    .modal-overlay.show { pointer-events: all; opacity: 1; }
+    .modal-content { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); transform: translateY(100%); }
+    .modal-overlay.show .modal-content { transform: translateY(0); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .toast { transition: all 0.3s; transform: translateY(-20px); opacity: 0; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .card-hover { transition: all 0.3s; } .card-hover:active { transform: scale(0.97); }
+    input, select { background-color: inherit; color: inherit; }
+    
+    .file-upload-label { border: 2px dashed #cbd5e1; transition: all 0.2s; }
+    .file-upload-label:hover { border-color: #2D3436; background-color: #f8fafc; }
+</style>
+</head>
+<body class="font-body">
+
+<!-- KIRISH SAHIFASI (SPLASH SCREEN) -->
+<div id="splash-screen" class="fixed inset-0 z-[100] bg-white dark:bg-gray-900 flex flex-col items-center justify-center px-8 text-center">
+    <img id="splash-logo" src="" alt="Logo" class="splash-anim-1 w-32 h-32 object-contain mb-6">
+    <h1 class="splash-anim-2 font-headline text-4xl font-extrabold text-primary dark:text-white tracking-tight" id="splash-brand">LUXE OFFICE</h1>
+    <p class="splash-anim-2 text-gray-500 dark:text-gray-400 mt-2 font-medium tracking-widest text-sm uppercase">Premium Catalog</p>
+    <button onclick="enterApp()" class="splash-anim-3 mt-16 bg-primary dark:bg-blue-600 text-white font-bold py-4 px-16 rounded-2xl shadow-xl active:scale-95 transition-transform flex items-center gap-3 text-lg">
+        Katalogga o'tish
+        <span class="material-symbols-outlined">arrow_forward</span>
+    </button>
+</div>
+
+<!-- Toast Xabar -->
+<div id="toast" class="toast fixed top-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-2xl shadow-2xl font-medium z-[90] flex items-center gap-2">
+    <span class="material-symbols-outlined text-green-400">check_circle</span>
+    <span id="toast-msg">Muvaffaqiyat!</span>
+</div>
+
+<!-- Header -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 flex justify-between items-center px-gutter h-16">
+    <div class="flex items-center gap-3">
+        <img id="header-logo" src="" alt="Logo" class="w-10 h-10 object-contain rounded-lg">
+        <h1 class="font-headline text-lg font-bold tracking-wider text-primary dark:text-white" id="header-brand">LUXE OFFICE</h1>
+    </div>
+    <button onclick="navigate('bag')" class="relative active:scale-95 transition-transform">
+        <span class="material-symbols-outlined text-primary dark:text-white text-2xl">shopping_bag</span>
+        <span id="header-badge" class="hidden absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">0</span>
+    </button>
+</header>
+
+<!-- Main Content -->
+<main class="pt-16 pb-20 min-h-screen">
+    <!-- SHOP -->
+    <div id="page-shop" class="page active px-gutter pt-8 pb-8">
+        <h2 class="font-headline text-2xl font-bold mb-1" id="shop-title">Barcha Mahsulotlar</h2>
+        <p class="text-gray-500 text-sm mb-6">Zamonaviy ofis uchun premium echimlar</p>
+        <div id="catalog-grid" class="grid grid-cols-2 gap-4"></div>
+    </div>
+
+    <!-- BAG -->
+    <div id="page-bag" class="page px-gutter pt-8">
+        <h2 class="font-headline text-2xl font-bold mb-6">Savatcha</h2>
+        <div id="cart-list" class="space-y-4 pb-48"></div>
+        <div id="cart-empty" class="hidden flex flex-col items-center justify-center py-20 text-center">
+            <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">remove_shopping_cart</span>
+            <p class="text-gray-500 font-medium">Savatingiz bo'sh</p>
+        </div>
+    </div>
+
+    <!-- EXPLORE -->
+    <div id="page-explore" class="page px-gutter pt-8">
+        <h2 class="font-headline text-2xl font-bold mb-6">Kategoriyalar</h2>
+        <div class="space-y-4">
+            <div onclick="filterByCategory('STOL')" class="h-28 bg-gradient-to-r from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center p-6 cursor-pointer card-hover shadow-sm border border-gray-100 dark:border-gray-700 relative">
+                <div class="z-10"><h3 class="font-headline text-lg font-bold text-primary dark:text-white">Ish Stollari</h3><p class="text-sm text-gray-500 dark:text-gray-400" id="cat-stol">0 ta</p></div>
+                <span class="material-symbols-outlined absolute right-6 text-6xl opacity-10 text-primary dark:text-white">table_bar</span>
+            </div>
+            <div onclick="filterByCategory('KRESLO')" class="h-28 bg-gradient-to-r from-orange-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center p-6 cursor-pointer card-hover shadow-sm border border-gray-100 dark:border-gray-700 relative">
+                <div class="z-10"><h3 class="font-headline text-lg font-bold text-primary dark:text-white">Kreslolar</h3><p class="text-sm text-gray-500 dark:text-gray-400" id="cat-kreslo">0 ta</p></div>
+                <span class="material-symbols-outlined absolute right-6 text-6xl opacity-10 text-primary dark:text-white">chair</span>
+            </div>
+            <div onclick="filterByCategory('AKSESSUAR')" class="h-28 bg-gradient-to-r from-green-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-2xl flex items-center p-6 cursor-pointer card-hover shadow-sm border border-gray-100 dark:border-gray-700 relative">
+                <div class="z-10"><h3 class="font-headline text-lg font-bold text-primary dark:text-white">Aksessuarlar</h3><p class="text-sm text-gray-500 dark:text-gray-400" id="cat-aksesar">0 ta</p></div>
+                <span class="material-symbols-outlined absolute right-6 text-6xl opacity-10 text-primary dark:text-white">devices</span>
+            </div>
+            <button onclick="filterByCategory('ALL')" class="w-full mt-4 border-2 border-dashed border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 py-4 rounded-2xl font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition">Barchasini Ko'rish</button>
+        </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div id="page-profile" class="page px-gutter pt-8">
+        <div class="flex items-center gap-4 mb-6 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 cursor-pointer" onclick="openModal('modal-edit-profile')">
+            <div class="w-16 h-16 rounded-2xl bg-gray-200 dark:bg-gray-600 flex items-center justify-center overflow-hidden">
+                <span class="material-symbols-outlined text-4xl text-gray-400 dark:text-gray-300">storefront</span>
+            </div>
+            <div class="flex-1">
+                <h2 class="font-headline text-lg font-bold dark:text-white" id="profile-store-name">LUXE OFFICE</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400" id="profile-admin-name">Admin</p>
+            </div>
+            <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                <span class="material-symbols-outlined text-primary dark:text-white">edit</span>
+            </div>
+        </div>
+
+        <button onclick="openModal('modal-logo')" class="w-full mb-4 border-2 border-dashed border-primary dark:border-blue-500 text-primary dark:text-blue-400 font-bold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+            <span class="material-symbols-outlined">badge</span>
+            Logotipni O'zgartirish
+        </button>
+
+        <button onclick="openModal('modal-add-product')" class="w-full mb-6 bg-primary dark:bg-blue-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg">
+            <span class="material-symbols-outlined">add_circle</span>
+            Yangi Mahsulot Qo'shish
+        </button>
+
+        <div class="space-y-3">
+            <div onclick="openModal('modal-settings')" class="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 cursor-pointer">
+                <div class="flex items-center gap-4"><span class="material-symbols-outlined text-gray-600 dark:text-gray-300">settings</span><span class="font-medium dark:text-white">Sozlamalar</span></div>
+                <span class="material-symbols-outlined text-gray-400">chevron_right</span>
+            </div>
+            <button onclick="clearAllData()" class="w-full mt-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-error rounded-2xl font-semibold flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined">delete_forever</span>
+                Barcha Ma'lumotlarni O'chirish
+            </button>
+        </div>
+    </div>
+</main>
+
+<!-- Bottom Nav -->
+<nav class="fixed bottom-0 w-full z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-t border-gray-200 dark:border-gray-700 flex justify-around items-center h-16">
+    <button onclick="navigate('shop')" class="nav-btn flex flex-col items-center justify-center pt-2 text-primary dark:text-blue-400 border-t-2 border-primary dark:border-blue-400" data-page="shop">
+        <span class="material-symbols-outlined">storefront</span><span class="text-[10px] font-semibold mt-1">Shop</span>
+    </button>
+    <button onclick="navigate('explore')" class="nav-btn flex flex-col items-center justify-center pt-2 text-gray-400 border-t-2 border-transparent" data-page="explore">
+        <span class="material-symbols-outlined">grid_view</span><span class="text-[10px] font-semibold mt-1">Explore</span>
+    </button>
+    <button onclick="navigate('bag')" class="nav-btn flex flex-col items-center justify-center pt-2 text-gray-400 border-t-2 border-transparent relative" data-page="bag">
+        <span class="material-symbols-outlined">shopping_cart</span>
+        <span id="nav-badge" class="hidden absolute top-0 right-1/4 w-4 h-4 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">0</span>
+        <span class="text-[10px] font-semibold mt-1">Bag</span>
+    </button>
+    <button onclick="navigate('profile')" class="nav-btn flex flex-col items-center justify-center pt-2 text-gray-400 border-t-2 border-transparent" data-page="profile">
+        <span class="material-symbols-outlined">person</span><span class="text-[10px] font-semibold mt-1">Profile</span>
+    </button>
+</nav>
+
+<!-- MODALS -->
+
+<!-- 0. Ism va Do'kon Nomi O'zgartirish -->
+<div class="fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm modal-overlay" id="modal-edit-profile">
+    <div class="modal-content absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-3xl p-6">
+        <div class="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-6"></div>
+        <h3 class="font-headline text-xl font-bold mb-6 dark:text-white">Ma'lumotlarni Tahrirlash</h3>
+        <div class="space-y-4">
+            <div>
+                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase block mb-1">Do'kon Nomi (Brand)</label>
+                <input type="text" id="inp-store-name" class="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 mt-1 focus:ring-2 focus:ring-primary dark:focus:ring-blue-500 outline-none dark:bg-gray-800" placeholder="Masalan: Hikvision Store"/>
+            </div>
+            <div>
+                <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase block mb-1">Sizning Ismingiz (Admin)</label>
+                <input type="text" id="inp-admin-name" class="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 mt-1 focus:ring-2 focus:ring-primary dark:focus:ring-blue-500 outline-none dark:bg-gray-800" placeholder="Masalan: Aziz"/>
+            </div>
+            <button onclick="saveProfile()" class="w-full bg-primary dark:bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform">Saqlash</button>
+        </div>
+        <button onclick="closeModal('modal-edit-profile')" class="absolute top-6 right-6"><span class="material-symbols-outlined text-gray-400">close</span></button>
+    </div>
+</div>
+
+<!-- 1. Logotip O'zgartirish -->
+<div class="fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm modal-overlay" id="modal-logo">
+    <div class="modal-content absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-3xl p-6">
+        <div class="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-6"></div>
+        <h3 class="font-headline text-xl font-bold mb-6 dark:text-white">Logotipni O'zgartirish</h3>
+        <input type="file" accept="image/*" id="logo-file-btn" class="hidden" onchange="handleLogoUpload(event)">
+        <label for="logo-file-btn" class="file-upload-label flex flex-col items-center justify-center w-full h-48 rounded-2xl cursor-pointer bg-gray-50 dark:bg-gray-800 text-center mb-4">
+            <div id="logo-preview-container" class="hidden w-full h-full relative p-4">
+                <img id="logo-preview" src="" class="w-full h-full object-contain">
+                <div onclick="removeLogo(event)" class="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow cursor-pointer"><span class="material-symbols-outlined text-lg">close</span></div>
+            </div>
+            <div id="logo-upload-placeholder" class="flex flex-col items-center py-8">
+                <span class="material-symbols-outlined text-5xl text-gray-400 mb-2">badge</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Yangi logotipni tanlang</span>
+                <span class="text-xs text-gray-400 mt-1">To'rtburchak yoki doira shaklidagi rasim yaxshi ko'rinadi</span>
+            </div>
+        </label>
+        <button onclick="saveLogo()" class="w-full bg-primary dark:bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg active:scale-[0.98] transition-transform">Saqlash</button>
+        <button onclick="closeModal('modal-logo')" class="absolute top-6 right-6"><span class="material-symbols-outlined text-gray-400">close</span></button>
+    </div>
+</div>
+
+<!-- 2. Mahsulot Ko'rish -->
+<div class="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm modal-overlay" id="modal-product">
+    <div class="modal-content absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-3xl max-h-[90vh] overflow-y-auto hide-scrollbar">
+        <div class="sticky top-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md p-4 flex justify-between items-center border-b border-gray-100 dark:border-gray-800 z-10">
+            <h3 class="font-headline font-bold text-lg dark:text-white" id="modal-product-title">Mahsulot</h3>
+            <button onclick="closeModal('modal-product')" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center"><span class="material-symbols-outlined text-sm dark:text-white">close</span></button>
+        </div>
+        <div class="p-6">
+            <div class="aspect-square bg-gray-100 dark:bg-gray-800 rounded-2xl overflow-hidden mb-6"><img id="modal-product-img" src="" class="w-full h-full object-cover"/></div>
+            <div class="flex justify-between items-start mb-4">
+                <div><h2 class="font-headline text-2xl font-bold dark:text-white" id="modal-product-name">Nomi</h2><p class="text-sm text-gray-500 dark:text-gray-400" id="modal-product-cat">Kategoriya</p></div>
+                <p class="font-headline text-xl font-bold text-primary dark:text-blue-400" id="modal-product-price">0 UZS</p>
+            </div>
+            <p class="text-gray-600 dark:text-gray-300 leading-relaxed mb-8" id="modal-product-desc">Tavsif...</p>
+            <button onclick="addToCart()" class="w-full bg-primary dark:bg-blue-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-lg">
+                <span class="material-symbols-outlined">add_shopping_cart</span> Savatga Qo'shish
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 3. Mahsulot Qo'shish -->
+<div class="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm modal-overlay" id="modal-add-product">
+    <div class="modal-content absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto hide-scrollbar">
+        <div class="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-6"></div>
+        <h3 class="font-headline text-xl font-bold mb-6 dark:text-white">Yangi Mahsulot</h3>
+        <div class="mb-4">
+            <label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase block mb-2">Mahsulot Rasmi</label>
+            <input type="file" accept="image/*" id="real-file-btn" class="hidden" onchange="handleImageUpload(event)">
+            <label for="real-file-btn" class="file-upload-label flex flex-col items-center justify-center w-full h-40 rounded-2xl cursor-pointer bg-gray-50 dark:bg-gray-800 text-center">
+                <div id="img-preview-container" class="hidden w-full h-full relative">
+                    <img id="img-preview" src="" class="w-full h-full object-cover rounded-2xl">
+                    <div onclick="removeProductImage(event)" class="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center shadow cursor-pointer"><span class="material-symbols-outlined text-lg">close</span></div>
+                </div>
+                <div id="img-upload-placeholder" class="flex flex-col items-center py-8">
+                    <span class="material-symbols-outlined text-5xl text-gray-400 mb-2">add_photo_alternate</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400 font-medium">Rasmni tanlang</span>
+                </div>
+            </label>
+        </div>
+        <div class="space-y-4">
+            <div><label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Nomi</label><input type="text" id="inp-name" class="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 mt-1 focus:ring-2 focus:ring-primary dark:focus:ring-blue-500 outline-none dark:bg-gray-800" placeholder="Lux Stol"/></div>
+            <div><label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Narxi (so'm)</label><input type="number" id="inp-price" class="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 mt-1 focus:ring-2 focus:ring-primary outline-none dark:bg-gray-800" placeholder="1500000"/></div>
+            <div><label class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Kategoriya</label><select id="inp-cat" class="w-full border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 mt-1 focus:ring-2 focus:ring-primary outline-none dark:bg-gray-800"><option value="STOL">Stol</option><option value="KRESLO">Kreslo</option><option value="AKSESSUAR">Aksessuar</option></select></div>
+            <button onclick="addNewProduct()" class="w-full bg-primary dark:bg-blue-600 text-white font-bold py-4 rounded-xl mt-2">Saqlash</button>
+        </div>
+        <button onclick="closeModal('modal-add-product')" class="absolute top-6 right-6"><span class="material-symbols-outlined text-gray-400">close</span></button>
+    </div>
+</div>
+
+<!-- 4. Sozlamalar -->
+<div class="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm modal-overlay" id="modal-settings">
+    <div class="modal-content absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 rounded-t-3xl p-6">
+        <div class="w-10 h-1 bg-gray-300 dark:bg-gray-600 rounded-full mx-auto mb-6"></div>
+        <h3 class="font-headline text-xl font-bold mb-6 dark:text-white">Sozlamalar</h3>
+        <div class="space-y-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3"><span class="material-symbols-outlined text-gray-600 dark:text-gray-300">dark_mode</span><span class="font-medium dark:text-white">Qorong'u rejim</span></div>
+                <button onclick="toggleDarkMode()" id="btn-dark" class="w-14 h-8 bg-gray-300 rounded-full relative transition-colors">
+                    <div id="dark-circle" class="w-6 h-6 bg-white rounded-full absolute top-1 left-1 transition-all shadow"></div>
+                </button>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3"><span class="material-symbols-outlined text-gray-600 dark:text-gray-300">paid</span><span class="font-medium dark:text-white">Valyuta</span></div>
+                <select onchange="changeCurrency(this.value)" id="sel-curr" class="bg-gray-100 dark:bg-gray-800 border-0 rounded-lg px-3 py-2 text-sm font-medium outline-none text-gray-800 dark:text-white">
+                    <option value="UZS">UZS (So'm)</option>
+                    <option value="USD">USD (Dollar)</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="closeModal('modal-settings')" class="absolute top-6 right-6"><span class="material-symbols-outlined text-gray-400">close</span></button>
+    </div>
+</div>
+
+<script>
+    let state = {
+        products: [
+            { id: 1, name: "Zen Ish Stoli", price: 4500000, cat: "STOL", img: "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?q=80&w=1000&auto=format&fit=crop", desc: "Tabiiy yog'och va alyuminiydan yasalgan zamonaviy stol." },
+            { id: 2, name: "Ergo Kreslo", price: 3200000, cat: "KRESLO", img: "https://images.unsplash.com/photo-1592078615290-033ee584e267?q=80&w=1000&auto=format&fit=crop", desc: "Sog'lom o'tirish uchun premium ergonomik kreslo." },
+            { id: 3, name: "Smart Chiroq", price: 850000, cat: "AKSESSUAR", img: "https://images.unsplash.com/photo-1507473885765-e6ed057ab6fe?q=80&w=1000&auto=format&fit=crop", desc: "Ko'zni charchatmasligi uchun mo'ljallangan smart chiroq." }
+        ],
+        cart: [],
+        settings: { darkMode: false, currency: 'UZS' },
+        profile: { storeName: "LUXE OFFICE", adminName: "Admin" },
+        customLogo: null,
+        currentFilter: 'ALL',
+        currentViewProduct: null
+    };
+
+    let tempProductImg = null;
+    let tempLogoImg = null;
+
+    try {
+        if(localStorage.getItem('luxe_state')) {
+            const saved = JSON.parse(localStorage.getItem('luxe_state'));
+            state = { ...state, ...saved };
+        }
+    } catch(e) {}
+
+    function saveState() {
+        try { localStorage.setItem('luxe_state', JSON.stringify(state)); } 
+        catch(e) { showToast("Xotira to'ldi, eski rasmlarni o'chiring"); }
+    }
+
+    function openEditProfile() {
+        document.getElementById('inp-store-name').value = state.profile.storeName;
+        document.getElementById('inp-admin-name').value = state.profile.adminName;
+    }
+
+    function saveProfile() {
+        const storeName = document.getElementById('inp-store-name').value.trim();
+        const adminName = document.getElementById('inp-admin-name').value.trim();
+        if(storeName) state.profile.storeName = storeName;
+        if(adminName) state.profile.adminName = adminName;
+        document.getElementById('profile-store-name').innerText = state.profile.storeName;
+        document.getElementById('profile-admin-name').innerText = state.profile.adminName;
+        document.getElementById('header-brand').innerText = state.profile.storeName;
+        document.getElementById('splash-brand').innerText = state.profile.storeName;
+        saveState(); closeModal('modal-edit-profile'); showToast("Ma'lumotlar saqlandi!");
+    }
+
+    function updateLogos() {
+        const logoSrc = state.customLogo || DEFAULT_LOGO;
+        document.getElementById('splash-logo').src = logoSrc;
+        document.getElementById('header-logo').src = logoSrc;
+    }
+
+    function handleLogoUpload(event) {
+        const file = event.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const maxSize = 500; const scale = maxSize / img.width;
+                canvas.width = maxSize; canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                tempLogoImg = canvas.toDataURL('image/png', 0.8);
+                document.getElementById('logo-preview').src = tempLogoImg;
+                document.getElementById('logo-preview-container').classList.remove('hidden');
+                document.getElementById('logo-upload-placeholder').classList.add('hidden');
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeLogo(e) {
+        e.preventDefault(); e.stopPropagation(); tempLogoImg = null;
+        document.getElementById('logo-file-btn').value = '';
+        document.getElementById('logo-preview-container').classList.add('hidden');
+        document.getElementById('logo-upload-placeholder').classList.remove('hidden');
+    }
+
+    function saveLogo() {
+        state.customLogo = tempLogoImg; saveState(); updateLogos();
+        closeModal('modal-logo'); showToast("Logotip o'zgartirildi!");
+    }
+
+    function enterApp() { document.getElementById('splash-screen').classList.add('hidden-splash'); }
+
+    function navigate(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById('page-' + page).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('text-primary', 'dark:text-blue-400', 'border-primary', 'dark:border-blue-400');
+            btn.classList.add('text-gray-400', 'border-transparent');
+            if(btn.dataset.page === page) {
+                btn.classList.add('text-primary', 'dark:text-blue-400', 'border-primary', 'dark:border-blue-400');
+                btn.classList.remove('text-gray-400', 'border-transparent');
+            }
+        });
+        if(page === 'shop') renderShop();
+        if(page === 'bag') renderCart();
+        if(page === 'explore') updateCats();
+    }
+
+    function handleImageUpload(event) {
+        const file = event.target.files[0]; if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const maxWidth = 800; const scale = maxWidth / img.width;
+                canvas.width = maxWidth; canvas.height = img.height * scale;
+                const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                tempProductImg = canvas.toDataURL('image/jpeg', 0.7);
+                document.getElementById('img-preview').src = tempProductImg;
+                document.getElementById('img-preview-container').classList.remove('hidden');
+                document.getElementById('img-upload-placeholder').classList.add('hidden');
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeProductImage(e) {
+        e.preventDefault(); e.stopPropagation(); tempProductImg = null;
+        document.getElementById('real-file-btn').value = '';
+        document.getElementById('img-preview-container').classList.add('hidden');
+        document.getElementById('img-upload-placeholder').classList.remove('hidden');
+    }
+
+    function renderShop() {
+        const grid = document.getElementById('catalog-grid'); let items = state.products;
+        if(state.currentFilter !== 'ALL') {
+            items = items.filter(p => p.cat === state.currentFilter);
+            document.getElementById('shop-title').innerText = state.currentFilter === 'STOL' ? 'Ish Stollari' : state.currentFilter === 'KRESLO' ? 'Kreslolar' : 'Aksessuarlar';
+        } else { document.getElementById('shop-title').innerText = 'Barcha Mahsulotlar'; }
+        grid.innerHTML = items.map(p => `
+            <div class="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 card-hover cursor-pointer" onclick="viewProduct(${p.id})">
+                <div class="aspect-square bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                    <img src="${p.img}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/600x600/e2e8f0/475569?text=Rasm+yoq'">
+                </div>
+                <div class="p-4">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">${p.cat}</p>
+                    <h4 class="font-headline font-bold mt-1 truncate dark:text-white">${p.name}</h4>
+                    <p class="font-headline font-bold mt-2 text-primary dark:text-blue-400">${formatMoney(p.price)}</p>
+                </div>
+            </div>`).join('');
+    }
+
+    function renderCart() {
+        const list = document.getElementById('cart-list'); const empty = document.getElementById('cart-empty');
+        if(state.cart.length === 0) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
+        empty.classList.add('hidden'); let total = 0;
+        list.innerHTML = state.cart.map(item => {
+            total += item.price * item.qty;
+            return `<div class="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex gap-4 items-center">
+                <img src="${item.img}" class="w-20 h-20 rounded-xl object-cover" onerror="this.src='https://placehold.co/100x100/e2e8f0/475569?text=Rasm'">
+                <div class="flex-1"><h4 class="font-bold truncate dark:text-white">${item.name}</h4><p class="text-sm text-gray-500 dark:text-gray-400">${formatMoney(item.price)}</p>
+                    <div class="flex items-center gap-3 mt-2 bg-gray-100 dark:bg-gray-700 rounded-lg w-fit">
+                        <button onclick="changeQty(${item.id}, -1)" class="w-8 h-8 flex items-center justify-center font-bold text-gray-500 hover:text-red-500">-</button>
+                        <span class="font-bold w-4 text-center dark:text-white">${item.qty}</span>
+                        <button onclick="changeQty(${item.id}, 1)" class="w-8 h-8 flex items-center justify-center font-bold text-gray-500 hover:text-blue-500">+</button>
+                    </div>
+                </div>
+                <button onclick="removeFromCart(${item.id})" class="self-start p-1 text-gray-300 hover:text-red-500 transition"><span class="material-symbols-outlined">delete</span></button>
+            </div>`;
+        }).join('');
+        list.innerHTML += `<div class="fixed bottom-20 left-0 right-0 p-4 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-t border-gray-200 dark:border-gray-700 z-40"><div class="max-w-lg mx-auto">
+            <div class="flex justify-between mb-3"><span class="text-gray-500 font-medium">Jami:</span><span class="font-headline text-xl font-bold dark:text-white">${formatMoney(total)}</span></div>
+            <a href="#" onclick="sendToTelegram(); return false;" class="w-full bg-[#0088cc] text-white font-bold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-2 active:scale-[0.98] transition-transform block text-center"><span class="material-symbols-outlined">send</span> Telegram orqali Buyurtma Berish</a>
+            <button onclick="clearCart()" class="w-full text-center text-sm text-gray-400 mt-2 underline">Savatchani tozalash</button></div></div>`;
+    }
+
+    function updateCats() {
+        document.getElementById('cat-stol').innerText = state.products.filter(p => p.cat === 'STOL').length + ' ta';
+        document.getElementById('cat-kreslo').innerText = state.products.filter(p => p.cat === 'KRESLO').length + ' ta';
+        document.getElementById('cat-aksesar').innerText = state.products.filter(p => p.cat === 'AKSESSUAR').length + ' ta';
+    }
+
+    function updateBadges() {
+        const count = state.cart.reduce((a, b) => a + b.qty, 0);
+        ['header-badge', 'nav-badge').forEach(id => {
+            const el = document.getElementById(id);
+            if(count > 0) { el.classList.remove('hidden'); el.classList.add('flex'); el.innerText = count; } else { el.classList.add('hidden'); }
+        });
+    }
+
+    function viewProduct(id) {
+        state.currentViewProduct = state.products.find(p => p.id === id); const p = state.currentViewProduct;
+        document.getElementById('modal-product-title').innerText = p.name; document.getElementById('modal-product-name').innerText = p.name;
+        document.getElementById('modal-product-img').src = p.img; document.getElementById('modal-product-cat').innerText = p.cat;
+        document.getElementById('modal-product-price').innerText = formatMoney(p.price); document.getElementById('modal-product-desc').innerText = p.desc;
+        openModal('modal-product');
+    }
+
+    function addToCart() {
+        const p = state.currentViewProduct; const existing = state.cart.find(i => i.id === p.id);
+        if(existing) existing.qty++; else state.cart.push({ ...p, qty: 1 });
+        saveState(); updateBadges(); closeModal('modal-product'); showToast("Savatga qo'shildi!");
+    }
+
+    function changeQty(id, val) {
+        const item = state.cart.find(i => i.id === id);
+        if(item) { item.qty += val; if(item.qty <= 0) state.cart = state.cart.filter(i => i.id !== id); }
+        saveState(); updateBadges(); renderCart();
+    }
+    function removeFromCart(id) { state.cart = state.cart.filter(i => i.id !== id); saveState(); updateBadges(); renderCart(); }
+    function clearCart() { state.cart = []; saveState(); updateBadges(); renderCart(); showToast("Savatcha tozalandi"); }
+
+    function sendToTelegram() {
+        if(state.cart.length === 0) return;
+        let message = "🛒 *Yangi Buyurtma!*\n\n"; let total = 0;
+        state.cart.forEach((item, index) => { const sum = item.price * item.qty; total += sum; message += `${index + 1}. ${item.name}\n   Miqdori: ${item.qty} ta\n   Narxi: ${formatMoney(sum)}\n\n`; });
+        message += `💰 *Jami: ${formatMoney(total)}*`;
+        window.open(`https://t.me/${OWNER_USERNAME}?text=${encodeURIComponent(message)}`, '_blank');
+        state.cart = []; saveState(); updateBadges(); renderCart();
+    }
+
+    function filterByCategory(cat) { state.currentFilter = cat; navigate('shop'); }
+
+    function addNewProduct() {
+        const name = document.getElementById('inp-name').value.trim(); const price = parseInt(document.getElementById('inp-price').value); const cat = document.getElementById('inp-cat').value;
+        if(!name || !price) return showToast("Nomi va narxni kiriting!");
+        let img = tempProductImg || `https://placehold.co/600x600/e2e8f0/475569?text=${name.split(' ')[0]}`;
+        state.products.push({ id: Date.now(), name, price, cat, img, desc: `${name} - zamonaviy ofis uchun maxsus ishlab chiqilgan mahsulot.` });
+        saveState(); renderShop(); updateCats(); closeModal('modal-add-product');
+        document.getElementById('inp-name').value = ''; document.getElementById('inp-price').value = ''; removeProductImage(new Event('click')); tempProductImg = null;
+        showToast("Mahsulot qo'shildi!");
+    }
+
+    function toggleDarkMode() {
+        state.settings.darkMode = !state.settings.darkMode;
+        document.documentElement.classList.toggle('dark', state.settings.darkMode); document.body.classList.toggle('dark-mode', state.settings.darkMode);
+        const circle = document.getElementById('dark-circle'); const btn = document.getElementById('btn-dark');
+        if(state.settings.darkMode) { circle.style.left = '28px'; btn.style.backgroundColor = '#3B82F6'; }
+        else { circle.style.left = '4px'; btn.style.backgroundColor = '#D1D5DB'; }
+        saveState();
+    }
+
+    function changeCurrency(curr) { state.settings.currency = curr; saveState(); renderShop(); if(document.getElementById('page-bag').classList.contains('active')) renderCart(); }
+    function clearAllData() { if(confirm("Haqiqatan ham barcha ma'lumotlarni o'chirmoqchimisiz?")) { localStorage.removeItem('luxe_state'); location.reload(); } }
+
+    function formatMoney(num) { if(state.settings.currency === 'USD') return '$' + (num / 11000).toFixed(2); return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " so'm"; }
+
+    function openModal(id) { 
+        if(id === 'modal-edit-profile') openEditProfile(); 
+        document.getElementById(id).classList.add('show'); document.body.style.overflow = 'hidden'; 
+    }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); document.body.style.overflow = ''; }
+
+    function showToast(msg) { const t = document.getElementById('toast'); document.getElementById('toast-msg').innerText = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+
+    document.querySelectorAll('.modal-overlay').forEach(m => { m.addEventListener('click', (e) => { if(e.target === m) closeModal(m.id); }); });
+
+    function init() {
+        if(state.settings.darkMode) {
+            document.documentElement.classList.add('dark'); document.body.classList.add('dark-mode');
+            document.getElementById('dark-circle').style.left = '28px'; document.getElementById('btn-dark').style.backgroundColor = '#3B82F6';
+        }
+        document.getElementById('sel-curr').value = state.settings.currency;
+        document.getElementById('profile-store-name').innerText = state.profile.storeName;
+        document.getElementById('profile-admin-name').innerText = state.profile.adminName;
+        document.getElementById('header-brand').innerText = state.profile.storeName;
+        document.getElementById('splash-brand').innerText = state.profile.storeName;
+        updateLogos(); renderShop(); updateCats(); updateBadges();
+    }
+
+    init();
+</script>
+<!-- Made with LUXE OFFICE Builder -->
+</body>
+</html>
